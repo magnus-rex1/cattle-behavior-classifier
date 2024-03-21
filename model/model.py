@@ -147,9 +147,9 @@ def experiment(df):
 
 def train():
     experiment(cow1)
-    experiment(cow2)
-    experiment(cow3)
-    experiment(cow4)
+    # experiment(cow2)
+    # experiment(cow3)
+    # experiment(cow4)
 
 train()
 
