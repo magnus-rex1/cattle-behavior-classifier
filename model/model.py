@@ -17,9 +17,11 @@ from datetime import datetime
 import os
 # export MLFLOW_TRACKING_URI="sqlite:///mlruns.db"
 
-MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
-mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-subprocess.Popen(["mlflow", "ui", "--port", "8080", "--backend-store-uri", MLFLOW_TRACKING_URI])
+# MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
+# mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+# subprocess.Popen(["mlflow", "ui", "--port", "8080", "--backend-store-uri", MLFLOW_TRACKING_URI])
+
+mlflow.set_tracking_uri('https://cattle-behavior-classifier.onrender.com/')
 
 current_dir = os.path.dirname(__file__)
 data_path = os.path.join(current_dir, 'JapaneseBlackBeefData/')
