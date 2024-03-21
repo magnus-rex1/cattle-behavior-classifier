@@ -153,7 +153,6 @@ terminado==0.18.0
 threadpoolctl==3.2.0
 tifffile==2024.1.30
 tinycss2==1.2.1
-torch==2.2.0+cpu
 torchaudio==2.2.0+cpu
 torchvision==0.17.0+cpu
 tornado==6.4
