@@ -151,7 +151,7 @@ def train():
     # experiment(cow3)
     # experiment(cow4)
 
-train()
+# train()
 
 def best_model():
     client = mlflow.tracking.MlflowClient()
