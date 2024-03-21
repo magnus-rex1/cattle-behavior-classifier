@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Predict</title>
+</head>
+<body>
+  <h1>Upload a File</h1>
+  <form method="POST" enctype="multipart/form-data">
+    <input type="file" name="file">
+    <input type="submit" value="Upload">
+  </form>
+  {% if uploaded %}
+    <h1>Uploaded files:</h1>
+    <ul>
+        {% for file in files %}
+            <form action="/display_result" method="POST">
+                <li>{{file}}</li>
+                {% if pred %}
+                    {{prediction}}
+                {% endif %}
+                <!-- <input type="file" name="test_file"> -->
+                <input type="submit" name="submit_action" value="Test">
+            </form>
+        {% endfor%}
+    </ul>
+  {% endif %}
+</body>
+</html>

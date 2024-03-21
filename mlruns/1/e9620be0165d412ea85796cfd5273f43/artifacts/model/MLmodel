@@ -1,0 +1,26 @@
+artifact_path: model
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.11.6
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.4.0
+mlflow_version: 2.11.1
+model_size_bytes: 139247
+model_uuid: ffe45f153a7846bea3a73c0766626e72
+run_id: e9620be0165d412ea85796cfd5273f43
+signature:
+  inputs: '[{"type": "double", "name": "AccX", "required": true}, {"type": "double",
+    "name": "AccY", "required": true}, {"type": "double", "name": "AccZ", "required":
+    true}, {"type": "double", "name": "AccMag", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "int64", "shape": [-1]}}]'
+  params: null
+utc_time_created: '2024-03-20 15:56:19.708094'
