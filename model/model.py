@@ -1,8 +1,6 @@
 import pandas as pd
-import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.impute import SimpleImputer
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score, accuracy_score
 from sklearn.preprocessing import StandardScaler
 
@@ -12,6 +10,8 @@ from mlflow.models import infer_signature
 import subprocess
 import joblib
 import os
+
+from preprocess import *
 # export MLFLOW_TRACKING_URI="sqlite:///mlruns.db"
 
 # MLFLOW_TRACKING_URI = "sqlite:///mlflow.db"
@@ -41,47 +41,6 @@ experiment_name = "behavior-classification-experiment"
 # public_url = ngrok.connect(port).public_url
 # print(f' * ngrok tunnel \"{public_url}\" -> \"http://127.0.0.1:{port}\"')
 
-# converting from mg to m/s^2
-def convert_acc_units(df):
-    df['AccX'] = (df['AccX']/1000)*9.81
-    df['AccY'] = (df['AccY']/1000)*9.81
-    df['AccZ'] = (df['AccZ']/1000)*9.81
-    df['AccMag'] = np.sqrt(df['AccX']**2 + df['AccY']**2 + df['AccZ']**2)
-
-    return df
-
-def simple_impute(df):
-    mode = SimpleImputer(strategy='most_frequent')
-    # df['Label'] = mode.fit_transform(df[['Label']])
-    df.loc[:,'Label'] = mode.fit_transform(df[['Label']])
-
-    return df
-
-# encode 'Label column
-def encode_label_column(df):
-    behaviors = {
-    'RES': 1,  # Resting in standing position
-    'RUS': 2,  # Ruminating in standing position
-    'MOV': 3,  # Moving
-    'GRZ': 4,  # Grazing
-    'SLT': 5,  # Salt licking
-    'FES': 6,  # Feeding in stanchion
-    'DRN': 7,  # Drinking
-    'LCK': 8,  # Licking
-    'REL': 9,  # Resting in lying position
-    'URI': 10,  # Urinating
-    'ATT': 11, # Attacking
-    'ESC': 12, # Escaping
-    'BMN': 13, # Being mounted
-    'ETC': 14, # Other behaviors
-    'BLN': 15  # Data without video, no label
-    }
-    df['behavior'] = df['Label'].map(behaviors)
-    df['behavior'] = df['behavior'].astype('int')
-    # preserve the nans in the original column
-    # df['behavior'] = df['behavior'].where(~df['Label'].isnull(), pd.NA)
-
-    return df
 
 params = {"max_depth": 2, "random_state": 42}
 model = RandomForestClassifier(**params)

@@ -1,92 +1,59 @@
-from crypt import methods
-from flask import Flask, request, jsonify, render_template, redirect, url_for
-from waitress import serve
-from model.model import predict_behavior
+from flask import Flask, render_template, request, flash
+import mlflow
 import os
-from werkzeug.utils import secure_filename, safe_join
+from werkzeug.utils import secure_filename
+import pandas as pd
+from preprocess import *
+import joblib
 
- 
 app = Flask(__name__)
-# app.config['UPLOAD_FOLDER'] = '/uploads'
 app.config['UPLOAD_FOLDER'] = 'uploads'
-ALLOWED_EXTENSIONS={'csv'}
-
 current_dir = os.path.dirname(__file__)
 
-def allowed_file(filename):
-    return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+def load_model():
+    # logged_model = 'runs:/840db5c0df89494e80b28e9f65471f80/model'
+    # loaded_model = mlflow.pyfunc.load_model(logged_model)
+    loaded_model = joblib.load('model.pkl')
+    return loaded_model
 
-@app.route('/', methods=['POST', 'GET'])
+model = load_model()
+
+def predict_behavior(data_path):
+    cow = pd.read_csv(data_path)
+    df = cow
+    # make some transformations to the data
+    df = convert_acc_units(df)
+    df = simple_impute(df)
+    df = encode_label_column(df)
+    df = df.drop(columns=['TimeStamp_UNIX', 'TimeStamp_JST', 'Label', 'behavior'])
+    # predict behavior
+    model = load_model()
+    behavior = set(model.predict(pd.DataFrame(df)))
+    return behavior
+
+@app.route('/', methods=['GET', 'POST'])
+def main():
+    return render_template('index.html')
+
+@app.route('/submit', methods=['POST', 'GET'])
 def predict():
-    uploaded = False
-    pred = False
-    prediction = 0
+    show = False
     if request.method == 'POST':
         if 'file' not in request.files:
             return 'No file uploaded'
-        file = request.files['file']
-        if file.filename == '':
-            return 'No selected file!'
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(current_dir, app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
-            uploaded=True
-            # use safe_join to prevent directory traversal attacks
-            uploads_dir = app.config['UPLOAD_FOLDER']
-            allowed_paths = [safe_join(uploads_dir, f) for f in os.listdir(uploads_dir)]
-            # files = [os.path.basename(path) for path in allowed_paths]  # Get filenames only
-            files = os.listdir(uploads_dir)
-            # submit_action = request.form.get('submit_action')
-            # print(submit_action)
-            # if submit_action == 'Test':
-            #     pred = True
-            #     prediction = predict_behavior(request.files['test_file'].filename)
-            #     print(f"The prediction is {prediction}")
-            #     return render_template('upload.html', filename=filename, uploaded=uploaded, files=files, pred=pred, prediction=prediction)
-            return render_template('upload.html', filename=filename, uploaded=uploaded, files=files)
+        mfile = request.files['file']
+        if mfile.filename == '':
+            return 'No selected file'
+        else:
+            show = True
+        filename = secure_filename(mfile.filename)
+        filepath = os.path.join(current_dir, app.config['UPLOAD_FOLDER'], filename)
+        mfile.save(filepath)
 
-            # redirect(url_for('/', filename=filename))
-    return render_template('upload.html')
+        b = predict_behavior(filepath)
 
-@app.route('/display_result', methods=['POST'])
-def display_result():
-    submit_action = request.form.get('submit_action')
-    if submit_action == 'Test':
-        pred = True
-        file = request.files['file'].filename
-        print(file)
-        prediction = predict_behavior(file)
-        print(f"The prediction is {prediction}")
-        return render_template('display_result.html', pred=pred, prediction=prediction)
+        return render_template('index.html', prediction=b, filepath=filepath, show=show)
+    return render_template('index.html', show=show)
 
-    return render_template('display_result.html')
-
-@app.route('/dummy', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        # Check if file is uploaded
-        if 'file' not in request.files:
-            return 'No file uploaded!'
-        file = request.files['file']
-        # Validate filename and extension
-        if file.filename == '':
-            return 'No selected file!'
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(current_dir, app.config['UPLOAD_FOLDER'], filename)
-            print(current_dir)
-            file.save(filepath)
-            # Process the uploaded file here (optional)
-            # ...
-            return redirect(url_for('uploaded_file', filename=filename))
-    return render_template('upload.html')
-        
-@app.route('/uploaded_file/<filename>')
-def uploaded_file(filename):
-  return render_template('display_file.html', filename=filename)
-
- 
 if __name__ == '__main__':
-    serve(app, host="0.0.0.0", port=8000)
+    app.run(app, host="0.0.0.0", port=8000, debug=True)
