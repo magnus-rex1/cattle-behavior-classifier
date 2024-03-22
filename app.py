@@ -52,14 +52,16 @@ def predict():
 
 @app.route('/display_result', methods=['POST'])
 def display_result():
-    # submit_action = request.form.get('submit_action')
-    # print(submit_action)
-    # if submit_action == 'Test':
-    #     pred = True
-    #     prediction = predict_behavior(request.files['test_file'].filename)
-    #     print(f"The prediction is {prediction}")
-    #     return render_template('display_result.html', pred=pred, prediction=prediction)
-    return render_template('display_result')
+    submit_action = request.form.get('submit_action')
+    if submit_action == 'Test':
+        pred = True
+        file = request.files['file'].filename
+        print(file)
+        prediction = predict_behavior(file)
+        print(f"The prediction is {prediction}")
+        return render_template('display_result.html', pred=pred, prediction=prediction)
+
+    return render_template('display_result.html')
 
 @app.route('/dummy', methods=['GET', 'POST'])
 def upload_file():
