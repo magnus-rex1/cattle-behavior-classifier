@@ -1,3 +1,3 @@
-# INTERPRETABLE MACHINE LEARNING TECHNIQUES FOR PREDICTING MILK OUTPUT BASED ON COW BEHAVIOR
+# INTERPRETABLE MACHINE LEARNING TECHNIQUES FOR PREDICTIVE CATTLE MONITORING
 
-Machine learning project to classify animal behavior and use that to predict milk output
+Machine learning project to predict cattle behavior using accelerometer values
